@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHAHA FASHION BD</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#222}
+header{background:#21152e;color:white;padding:18px;text-align:center}
+header h1{margin:0;color:#ff65a3}
+nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:12px;background:#f8edf4}
+button{cursor:pointer;border:0;border-radius:8px;padding:10px 15px}
+.hero{padding:55px 20px;text-align:center;color:white;background:linear-gradient(120deg,#42216c,#f04c91)}
+.hero h2{font-size:36px;margin:5px}
+.hero p{font-size:17px}
+.hero button{background:white;color:#42216c;font-weight:bold}
+.container{max-width:1100px;margin:auto;padding:20px}
+h2{text-align:center}
+.search{width:100%;padding:13px;border:1px solid #ddd;border-radius:8px;margin:15px 0}
+.categories{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.category{background:#fff0f6;padding:18px;text-align:center;border-radius:12px;font-weight:bold}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.product{border:1px solid #eee;border-radius:12px;text-align:center;padding:15px}
+.product .emoji{font-size:55px;background:#f9eff7;padding:20px;border-radius:10px}
+.product h3{font-size:16px}
+.price{font-weight:bold;color:#e83e86}
+.add{background:#e83e86;color:white;width:100%;margin-top:10px}
+.cartbtn{background:#e83e86;color:white}
+footer{background:#21152e;color:white;text-align:center;padding:25px;margin-top:30px}
+#cart{background:#fff0f6;padding:15px;border-radius:12px;margin-top:20px}
+input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px}
+.order{background:#13a85b;color:white;width:100%;font-weight:bold}
+@media(max-width:650px){
+ .products{grid-template-columns:repeat(2,1fr)}
+ .hero h2{font-size:28px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>SHAHA FASHION BD</h1>
+<p id="subtitle">আপনার পছন্দের ফ্যাশন শপ</p>
+</header>
+
+<nav>
+<button onclick="changeLang()">বাংলা / English</button>
+<button onclick="showAll()">All Products</button>
+<button onclick="showCart()">🛒 Cart (<span id="count">0</span>)</button>
+</nav>
+
+<section class="hero">
+<h2 id="heroTitle">ফ্যাশনে থাকুন সবার থেকে এগিয়ে!</h2>
+<p id="heroText">নতুন কালেকশন, নতুন স্টাইল, সেরা দাম।</p>
+<button onclick="document.getElementById('shop').scrollIntoView()">Shop Now</button>
+</section>
+
+<div class="container">
+
+<h2 id="catTitle">আমাদের ক্যাটাগরি</h2>
+
+<div class="categories">
+<div class="category">👕 Men's Fashion</div>
+<div class="category">👗 Women's Fashion</div>
+<div class="category">🧸 Kids Fashion</div>
+<div class="category">👟 Shoes & Sneakers</div>
+<div class="category">👜 Bags & Backpacks</div>
+<div class="category">⌚ Watches</div>
+<div class="category">🕶️ Accessories</div>
+<div class="category">💄 Beauty</div>
+<div class="category">🎁 Lifestyle</div>
+</div>
+
+<section id="shop">
+<h2 id="shopTitle">জনপ্রিয় পণ্য</h2>
+
+<input class="search" id="search"
+placeholder="পণ্য খুঁজুন / Search Products"
+oninput="renderProducts()">
+
+<div class="products" id="products"></div>
+</section>
+
+<div id="cart" style="display:none">
+<h2>Your Shopping Cart</h2>
+<div id="cartItems"></div>
+<h3>Total: ৳<span id="total">0</span></h3>
+
+<h3>Customer Information</h3>
+<input id="customer" placeholder="Your Name">
+<input id="phone" placeholder="Phone Number">
+<textarea id="address" placeholder="Full Address"></textarea>
+<button class="order" onclick="sendOrder()">
+Order on WhatsApp
+</button>
+</div>
+
+</div>
+
+<footer>
+<h2>SHAHA FASHION BD</h2>
+<p>Trendy Fashion | Quality Products</p>
+<p>WhatsApp: 01314262299</p>
+<p>© 2026 SHAHA FASHION BD</p>
+</footer>
+
+<script>
+
+const WHATSAPP="8801314262299";
+
+let english=false;
+let cart=[];
+
+const products=[
+{name:"T-Shirt",bn:"টি-শার্ট",price:650,icon:"👕"},
+{name:"Premium Panjabi",bn:"প্রিমিয়াম পাঞ্জাবি",price:1450,icon:"🥻"},
+{name:"Women's Dress",bn:"মেয়েদের ড্রেস",price:1200,icon:"👗"},
+{name:"Hand Bag",bn:"হ্যান্ড ব্যাগ",price:1250,icon:"👜"},
+{name:"Kids Fashion",bn:"বাচ্চাদের পোশাক",price:850,icon:"🧸"},
+{name:"Sneakers",bn:"স্নিকার্স",price:1890,icon:"👟"},
+{name:"Watch",bn:"হাতঘড়ি",price:1350,icon:"⌚"},
+{name:"Sunglasses",bn:"সানগ্লাস",price:550,icon:"🕶️"},
+{name:"Beauty Products",bn:"বিউটি পণ্য",price:990,icon:"💄"},
+{name:"Backpack",bn:"ব্যাকপ্যাক",price:1550,icon:"🎒"},
+{name:"Fashion Accessories",bn:"ফ্যাশন অ্যাক্সেসরিজ",price:450,icon:"💍"},
+{name:"Kids Shoes",bn:"বাচ্চাদের জুতা",price:790,icon:"👟"}
+];
+
+function renderProducts(){
+let q=document.getElementById("search").value.toLowerCase();
+
+let list=products.filter(p=>
+p.name.toLowerCase().includes(q) ||
+p.bn.includes(q)
+);
+
+document.getElementById("products").innerHTML=
+list.map(p=>`
+<div class="product">
+<div class="emoji">${p.icon}</div>
+<h3>${english?p.name:p.bn}</h3>
+<p class="price">৳${p.price}</p>
+<button class="add" onclick="addCart('${p.name}')">
+${english?"Add to Cart":"কার্টে যোগ করুন"}
+</button>
+</div>
+`).join("");
+}
+
+function addCart(name){
+let item=cart.find(p=>p.name===name);
+
+if(item){item.qty++}
+else{
+let p=products.find(p=>p.name===name);
+cart.push({...p,qty:1});
+}
+
+updateCart();
+alert(english?"Product added to cart":"পণ্য কার্টে যোগ হয়েছে");
+}
+
+function updateCart(){
+document.getElementById("count").innerText=
+cart.reduce((s,p)=>s+p.qty,0);
+
+let total=0;
+
+document.getElementById("cartItems").innerHTML=
+cart.map(p=>{
+total+=p.price*p.qty;
+return `<p>${p.name} × ${p.qty} = ৳${p.price*p.qty}</p>`;
+}).join("");
+
+document.getElementById("total").innerText=total;
+}
+
+function showCart(){
+document.getElementById("cart").style.display="block";
+document.getElementById("cart").scrollIntoView();
+}
+
+function showAll(){
+document.getElementById("search").value="";
+renderProducts();
+document.getElementById("shop").scrollIntoView();
+}
+
+function changeLang(){
+english=!english;
+
+document.getElementById("subtitle").innerText=
+english?"Your Favourite Fashion Store":"আপনার পছন্দের ফ্যাশন শপ";
+
+document.getElementById("heroTitle").innerText=
+english?"Stay Ahead in Fashion":"ফ্যাশনে থাকুন সবার থেকে এগিয়ে!";
+
+document.getElementById("heroText").innerText=
+english?"New Collection, New Style, Best Price.":"নতুন কালেকশন, নতুন স্টাইল, সেরা দাম।";
+
+document.getElementById("catTitle").innerText=
+english?"Our Categories":"আমাদের ক্যাটাগরি";
+
+document.getElementById("shopTitle").innerText=
+english?"Popular Products":"জনপ্রিয় পণ্য";
+
+renderProducts();
+}
+
+function sendOrder(){
+
+let name=document.getElementById("customer").value.trim();
+let phone=document.getElementById("phone").value.trim();
+let address=document.getElementById("address").value.trim();
+
+if(!name||!phone||!address||cart.length===0){
+alert("Please complete all information and add products.");
+return;
+}
+
+let total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+
+let message=
+"SHAHA FASHION BD ORDER\n"+
+"Name: "+name+"\n"+
+"Phone: "+phone+"\n"+
+"Address: "+address+"\n"+
+"Products:\n"+
+cart.map(p=>p.name+" x "+p.qty+" = Tk "+p.price*p.qty).join("\n")+
+"\nTotal: Tk "+total;
+
+window.open(
+"https://wa.me/"+WHATSAPP+"?text="+
+encodeURIComponent(message),
+"_blank"
+);
+}
+
+renderProducts();
+
+</script>
+</body>
+</html>
